@@ -1,5 +1,8 @@
 # DDP Client with WebSocket (for browsers only)
 
+
+> Objective
+
 A demo for DDP Client using only pure JS
 
 ## Features
@@ -26,3 +29,7 @@ Simply import file `wdc.js` into your page
 
 
 This project was bootstrapped with [express-generator](https://github.com/expressjs/express)
+
+
+> TODOs
+- Use Webpack to bundle "EJSON" instead of copying manually

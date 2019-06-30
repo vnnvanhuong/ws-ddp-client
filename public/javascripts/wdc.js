@@ -83,6 +83,26 @@ class WsDppClient {
 
     _message(data) {
         console.log('--> messsage: ', data);
+
+        var self = this;
+        data = EJSON.parse(data);
+
+        if (!data.msg) {
+            return;
+        }
+
+        switch (data.msg) {
+            case 'ping':
+                let msg = { msg : "pong"};
+                if (data.id) {
+                    msg = { msg : "pong", id : data.id };
+                }
+                self._send(msg);
+                break;
+        
+            default:
+                break;
+        }
     }
     
 }

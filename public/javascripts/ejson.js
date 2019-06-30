@@ -1,3 +1,5 @@
+// Source: https://raw.githubusercontent.com/primus/ejson/master/bundle.js
+
 var EJSON =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
