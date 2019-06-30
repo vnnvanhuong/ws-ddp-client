@@ -1,5 +1,3 @@
-console.log('hello from wdc.js');
-
 class WsDppClient extends EventTarget {
 
     constructor(opts) {
@@ -13,12 +11,18 @@ class WsDppClient extends EventTarget {
         self.ssl = opts.ssl || self.port === 443;
         self.ddpVersion = ("ddpVersion" in opts) ? opts.ddpVersion : "1";
         self.supportedDdpVersions = ["1", "pre2", "pre1"];
+        self.maintainCollections = ("maintainCollections" in opts) ? opts.maintainCollections : true;
+
+        if (self.maintainCollections) {
+            self.collections = {};
+        }
 
         self.session = undefined;
         self._nextId = 0;
         self._callbacks = {};
         self._pendingMethods = {};
         self._updatedCallbacks = {};
+        self._observers = {};
 
     }
 
@@ -67,6 +71,32 @@ class WsDppClient extends EventTarget {
           id     : id,
           method : name,
           params : params
+        });
+    }
+
+    subscribe(name, params, callback) {
+        var self = this;
+        var id = self._getNextId();
+    
+        if (callback) {
+          self._callbacks[id] = callback;
+        }
+    
+        self._send({
+          msg    : "sub",
+          id     : id,
+          name   : name,
+          params : params
+        });
+    
+        return id;
+    }
+
+    unsubscribe(id) {
+        var self = this;
+        self._send({
+          msg : "unsub",
+          id  : id
         });
     }
 
@@ -187,6 +217,126 @@ class WsDppClient extends EventTarget {
                         delete self._updatedCallbacks[method];
                     }
                 });
+                break;
+            
+            // Managing data
+            case 'nosub':
+                var cb = self._callbacks[data.id];
+
+                if (cb) {
+                    cb(data.error);
+                    delete self._callbacks[data.id];
+                }
+                break;
+            
+            case 'added':
+                if (self.maintainCollections && data.collection) {
+                    var name = data.collection;
+                    var id = data.id;
+            
+                    if (! self.collections[name]) {
+                        self.collections[name] = {}; 
+                    }
+
+                    if (! self.collections[name][id]) {
+                        self.collections[name][id] = {};
+                    }
+            
+                    self.collections[name][id]._id = id;
+            
+                    if (data.fields) {
+                        Object.entries(data.fields).forEach(function(value, key) {
+                            self.collections[name][id][key] = value;
+                        });
+                    }
+            
+                    if (self._observers[name]) {
+                        self._observers[name].forEach(function(observer) {
+                            observer.added(id);
+                        });
+                    }
+                }
+                break;
+
+            case 'changed':
+                if (self.maintainCollections && data.collection) {
+                    var name = data.collection;
+                    var id = data.id;
+            
+                    if (! self.collections[name]){ 
+                        return; 
+                    }
+
+                    if (! self.collections[name][id]) {
+                        return;
+                    }
+            
+                    var oldFields = {};
+                    var clearedFields = data.cleared || [];
+                    var newFields = {};
+            
+                    if (data.fields) {
+                        Object.entries(data.fields).forEach(function(value, key) {
+                            oldFields[key] = self.collections[name][id][key];
+                            newFields[key] = value;
+                            self.collections[name][id][key] = value;
+                        });
+                    }
+            
+                    if (data.cleared) {
+                        data.cleared.forEach(function(value) {
+                            delete self.collections[name][id][value];
+                        });
+                    }
+            
+                    if (self._observers[name]) {
+                        self._observers[name].forEach(function(observer) {
+                            observer.changed(id, oldFields, clearedFields, newFields);
+                        });
+                    }
+                }
+
+                break;
+            
+            case 'removed':
+                if (self.maintainCollections && data.collection) {
+                    var name = data.collection;
+                    var id = data.id;
+            
+                    if (! self.collections[name][id]) {
+                        return;
+                    }
+            
+                    var oldValue = self.collections[name][id];
+            
+                    delete self.collections[name][id];
+            
+                    if (self._observers[name]) {
+                        self._observers[name].forEach(function(observer) {
+                            observer.removed(id, oldValue);
+                        });
+                    }
+                }
+
+                break;
+            
+            case 'ready':
+                data.subs.forEach(function(id) {
+                    var cb = self._callbacks[id];
+                    if (cb) {
+                        cb();
+                        delete self._callbacks[id];
+                    }
+                });
+                
+                break;
+            
+            case 'addedBefore':
+                // TODO: not yet implemented in Meteor
+                break;
+            
+            case 'movedBefore':
+                // TODO: not yet implemented in Meteor
                 break;
         
             default:

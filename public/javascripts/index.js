@@ -1,5 +1,3 @@
-console.log('hello from index.js');
-
 const wdc = new WsDppClient({});
 
 wdc.connect((err) => {
@@ -8,7 +6,18 @@ wdc.connect((err) => {
         return;
     }
 
-    wdc.call("login", [{ user : { username : "huong.nguyen" }, password : "123456" }], function (err, result) {
-        console.log('----> result', result);
+    wdc.call("login", [{ user : { username : "huong.nguyen" }, password : "123456" }], (logErr) => {
+        if (logErr) {
+            console.log(logErr);
+            return;
+        }
+
+        wdc.subscribe('activeUsers', [], (subErr) => {
+            if (subErr) {
+                console.log(subErr);
+                return;
+            }
+            console.log('HHH---users', wdc.collections.users);
+        });
     });
 });
