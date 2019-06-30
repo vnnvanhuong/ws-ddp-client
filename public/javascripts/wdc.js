@@ -100,6 +100,40 @@ class WsDppClient extends EventTarget {
         });
     }
 
+    observe(name, added, updated, removed) {
+        var self = this;
+        var observer = {};
+        var id = self._getNextId();
+    
+        // name, _id are immutable
+        Object.defineProperty(observer, "name", {
+          get: function() { return name; },
+          enumerable: true
+        });
+    
+        Object.defineProperty(observer, "_id", { get: function() { return id; }});
+    
+        observer.added   = added   || function(){};
+        observer.updated = updated || function(){};
+        observer.removed = removed || function(){};
+    
+        observer.stop = function() {
+          self._removeObserver(observer);
+        };
+    
+        self._addObserver(observer);
+    
+        return observer;
+    }
+    
+
+    close() {
+        var self = this;
+        self.socket.close();
+        self.removeAllListeners("connected");
+        self.removeAllListeners("failed");
+    }
+
     _buildWsUrl() {
         var self = this;
         var url;
@@ -251,7 +285,7 @@ class WsDppClient extends EventTarget {
                     }
             
                     if (self._observers[name]) {
-                        self._observers[name].forEach(function(observer) {
+                        Object.values(self._observers[name]).forEach(function(observer) {
                             observer.added(id);
                         });
                     }
@@ -290,7 +324,7 @@ class WsDppClient extends EventTarget {
                     }
             
                     if (self._observers[name]) {
-                        self._observers[name].forEach(function(observer) {
+                        Object.values(self._observers[name]).forEach(function(observer) {
                             observer.changed(id, oldFields, clearedFields, newFields);
                         });
                     }
@@ -312,7 +346,7 @@ class WsDppClient extends EventTarget {
                     delete self.collections[name][id];
             
                     if (self._observers[name]) {
-                        self._observers[name].forEach(function(observer) {
+                        Object.values(self._observers[name]).forEach(function(observer) {
                             observer.removed(id, oldValue);
                         });
                     }
@@ -347,6 +381,21 @@ class WsDppClient extends EventTarget {
     _getNextId() {
         var self = this;
         return (self._nextId += 1).toString();
+    }
+
+    _addObserver(observer) {
+        var self = this;
+        if (! self._observers[observer.name]) {
+          self._observers[observer.name] = {};
+        }
+        self._observers[observer.name][observer._id] = observer;
+    }
+    
+    _removeObserver(observer) {
+        var self = this;
+        if (! self._observers[observer.name]) { return; }
+
+        delete self._observers[observer.name][observer._id];
     }
     
 }
