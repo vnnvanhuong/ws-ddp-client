@@ -8,5 +8,7 @@ wdc.connect((err) => {
         return;
     }
 
-    console.log('---> connected!');
+    wdc.call("login", [{ user : { username : "huong.nguyen" }, password : "123456" }], function (err, result) {
+        console.log('----> result', result);
+    });
 });
