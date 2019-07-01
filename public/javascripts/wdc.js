@@ -105,7 +105,6 @@ class WsDppClient extends EventTarget {
         var observer = {};
         var id = self._getNextId();
     
-        // name, _id are immutable
         Object.defineProperty(observer, "name", {
           get: function() { return name; },
           enumerable: true
@@ -178,7 +177,7 @@ class WsDppClient extends EventTarget {
 
     _send(data) {
         var self = this;
-        console.log('--> send: ', EJSON.stringify(data));
+        console.log('--> client: ', EJSON.stringify(data));
         self.socket.send(
           EJSON.stringify(data)
         );
@@ -203,7 +202,7 @@ class WsDppClient extends EventTarget {
     }
 
     _message(data) {
-        console.log('--> messsage: ', data);
+        console.log('--> server: ', data);
 
         var self = this;
         data = EJSON.parse(data);
@@ -279,8 +278,8 @@ class WsDppClient extends EventTarget {
                     self.collections[name][id]._id = id;
             
                     if (data.fields) {
-                        Object.entries(data.fields).forEach(function(value, key) {
-                            self.collections[name][id][key] = value;
+                        Object.keys(data.fields).forEach((key) => {
+                            self.collections[name][id][key] = data.fields[key];
                         });
                     }
             
@@ -310,10 +309,10 @@ class WsDppClient extends EventTarget {
                     var newFields = {};
             
                     if (data.fields) {
-                        Object.entries(data.fields).forEach(function(value, key) {
+                        Object.keys(data.fields).forEach(function(key) {
                             oldFields[key] = self.collections[name][id][key];
-                            newFields[key] = value;
-                            self.collections[name][id][key] = value;
+                            newFields[key] = data.fields[key];
+                            self.collections[name][id][key] = data.fields[key];
                         });
                     }
             

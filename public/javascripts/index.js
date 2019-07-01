@@ -6,7 +6,7 @@ wdc.connect((err) => {
         return;
     }
 
-    wdc.call("login", [{ user : { username : "huong.nguyen" }, password : "123456" }], (logErr) => {
+    wdc.call("login", [{ user : { username : "wdc" }, password : "secret" }], (logErr) => {
         if (logErr) {
             console.log(logErr);
             return;
@@ -41,10 +41,9 @@ function updateUsers() {
         myNode.removeChild(myNode.firstChild);
     }
 
-    console.log('wdc.collections.users', wdc.collections.users);
     Object.keys(wdc.collections.users).forEach(id => {
         var node = document.createElement("LI");
-        var textnode = document.createTextNode(id);
+        var textnode = document.createTextNode(wdc.collections.users[id].name);
         node.appendChild(textnode);
         document.getElementById("activeUsers").appendChild(node);
     });

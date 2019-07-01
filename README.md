@@ -1,17 +1,14 @@
-# DDP Client with WebSocket (for browsers only)
+# WebSocket DDP Client
 
-
-> Objective
-
-A demo for DDP Client using only pure JS
+A demo for DDP Client using WebSocket (for browsers use only)
 
 ## Features
 - Following [DDP Specification](https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md).
-- Using [WebSocket APIs](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) for communicating with a server (DDP Server).
-- Implementing with pure JS, no extra libraries needed.
+- Using [WebSocket APIs](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) for communicating with a DDP Server.
+- Implemention in pure JS, no extra libraries needed.
 
-## DDP server preparation
-For this demo, I use [Rocket.Chat](https://github.com/RocketChat/Rocket.Chat) which contains a DDP Server. I shall create a user adming `wdc/secret` and some other users.
+## DDP server provision
+For this demo, I used [Rocket.Chat](https://github.com/RocketChat/Rocket.Chat) which contains a DDP Server. I created a user `wdc/secret` for authentication.
 
 
 ## Run
@@ -20,16 +17,13 @@ npm install
 DEBUG=ws-ddp-client:* PORT=8080 npm start
 ```
 
-## Usage
-Simply import file `wdc.js` into your page
-
-```html
-<script src="public/javascripts/wdc.js"></script>
-```
+## How to use
+Have a look:
+- Implementation: `public/javascripts/wdc.js`
+- client code: `public/javascripts/index.js`
 
 
+---
 This project was bootstrapped with [express-generator](https://github.com/expressjs/express)
 
-
-> TODOs
-- Use Webpack to bundle "EJSON" instead of copying manually
+Inspired by https://github.com/hharnisc/node-ddp-client
