@@ -17,25 +17,25 @@ wdc.connect((err) => {
                 console.log(subErr);
                 return;
             }
-            updateUsers();
+            updateUI();
         });
     });
 });
 
 const observer = wdc.observe("users");
 observer.added = function(id) {
-    updateUsers();
+    updateUI();
 };
 
 observer.changed = function(id, oldFields, clearedFields, newFields) {
-    updateUsers();
+    updateUI();
 };
 
 observer.removed = function(id, oldValue) {
-    updateUsers();
+    updateUI();
 };
 
-function updateUsers() {
+function updateUI() {
     var myNode = document.getElementById("activeUsers");
     while (myNode.firstChild) {
         myNode.removeChild(myNode.firstChild);
