@@ -2,6 +2,8 @@
 
 A demo for DDP Client using WebSocket (for browsers use only)
 
+<img src="images/ws-ddp-client.gif"/>
+
 ## Features
 - Following [DDP Specification](https://github.com/meteor/meteor/blob/devel/packages/ddp/DDP.md).
 - Using [WebSocket APIs](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) for communicating with a DDP Server.
