@@ -1,6 +1,6 @@
 # WebSocket DDP Client
 
-A demo for DDP Client using WebSocket (for browsers use only)
+A demo for DDP Client using Websockets API
 
 <img src="images/ws-ddp-client.gif"/>
 
